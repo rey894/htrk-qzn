@@ -1,0 +1,349 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Premium Design - Balanced Brown & Green from Seal */
+    --background: 45 20% 99%;
+    --foreground: 35 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 35 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 35 30% 15%;
+
+    /* Quezon Brown Primary (from seal) - Main brand color for text */
+    --primary: 35 45% 28%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Quezon Green Secondary (from seal and flag) - Balanced usage */
+    --secondary: 95 25% 92%;
+    --secondary-foreground: 95 35% 35%;
+
+    --muted: 45 15% 96%;
+    --muted-foreground: 35 20% 40%;
+
+    /* Refined Accents - Green balanced with brown and gold */
+    --accent: 95 38% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 95 38% 42%;
+    --success-foreground: 0 0% 100%;
+
+    /* Quezon Gold/Yellow (from seal) - Balanced accent with proper contrast */
+    --warning: 42 75% 48%;
+    --warning-foreground: 35 45% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Elegant Borders - Brown tinted for warmth */
+    --border: 35 15% 88%;
+    --input: 35 15% 90%;
+    --ring: 35 45% 28%;
+
+    /* iOS Border Radius (16px for cards, 14px for buttons) */
+    --radius: 1rem;
+
+    /* Logo-inspired earthy municipal colors - Balanced green, brown, and gold */
+    --municipal-brown: 35 45% 25%;
+    --municipal-sage-green: 95 30% 45%;
+    --municipal-cream: 45 35% 85%;
+    --municipal-rust: 20 55% 45%;
+    --municipal-deep-green: 110 40% 25%;
+    --municipal-warm-beige: 35 25% 75%;
+    --municipal-earth-brown: 25 35% 35%;
+    --municipal-soft-green: 100 25% 65%;
+    --municipal-gold: 42 75% 48%;
+    --municipal-gold-dark: 42 70% 38%;
+    --municipal-gold-light: 42 60% 65%;
+
+    /* Balanced Gradients - Green, Brown, and Gold from Seal */
+    --gradient-primary: linear-gradient(135deg, hsl(95 42% 45%) 0%, hsl(100 38% 40%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(35 45% 28%) 0%, hsl(95 38% 42%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(95 38% 42%) 0%, hsl(42 70% 48%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(95 38% 42%) 0%, hsl(95 35% 45%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(95 20% 98.5%) 0%, hsl(95 15% 97%) 100%);
+    --gradient-agricultural: linear-gradient(135deg, hsl(95 35% 45%) 0%, hsl(42 65% 50%) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(35 45% 28%) 0%, hsl(42 70% 48%) 100%);
+    --gradient-natural: linear-gradient(135deg, hsl(95 38% 42%) 0%, hsl(35 40% 32%) 100%);
+    --gradient-seal: linear-gradient(135deg, hsl(35 45% 28%) 0%, hsl(95 38% 42%) 50%, hsl(42 70% 48%) 100%);
+
+    /* Premium Subtle Shadows - Sophisticated & Layered */
+    --shadow-elegant: 0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
+    --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-municipal: 0 6px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+    --shadow-ios: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-green: 0 4px 20px rgba(95, 140, 80, 0.25), 0 2px 8px rgba(95, 140, 80, 0.15);
+    --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+
+    /* iOS Typography - San Francisco fallback */
+    --font-heading: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* iOS-style background with Quezon Municipal image */
+    background: hsl(var(--background));
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/assets/quezon-municipal-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.02;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+  
+  .gradient-agricultural {
+    background: var(--gradient-agricultural);
+  }
+  
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* iOS-style blur effects */
+  .blur-ios {
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background-color: rgba(255, 255, 255, 0.72);
+  }
+
+  .blur-ios-dark {
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background-color: rgba(28, 28, 30, 0.72);
+  }
+
+  /* iOS-style card */
+  .card-ios {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  /* iOS-style button */
+  .button-ios {
+    border-radius: 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .button-ios:active {
+    transform: scale(0.97);
+  }
+
+  /* iOS-style animations */
+  @keyframes ios-spring {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  .animate-ios-spring {
+    animation: ios-spring 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Accordion animations for collapsible menus */
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-collapsible-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-collapsible-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  .animate-accordion-down {
+    animation: accordion-down 0.2s ease-out;
+  }
+
+  .animate-accordion-up {
+    animation: accordion-up 0.2s ease-out;
+  }
+
+  /* Page and section animations - subtle, smooth */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.4s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* Stagger delays for sequential content */
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-400 { animation-delay: 400ms; }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .animate-fade-in,
+    .animate-fade-in-up {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

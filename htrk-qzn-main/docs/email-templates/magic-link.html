@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Access the Admin Dashboard</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#f6f9ff;font-family:'Segoe UI',Arial,sans-serif;color:#1f2937;">
+    <table align="center" width="100%" role="presentation" cellPadding="0" cellSpacing="0" style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 18px 40px rgba(15,23,42,0.12);">
+      <tr>
+        <td style="padding:32px 40px 24px;background:linear-gradient(135deg,#2563eb,#38bdf8);color:#ffffff;">
+          <img
+            src="https://quezonbukidnon.com/images/47f5d21c-299d-4311-9f15-583dfc7476ee.png"
+            alt="Municipality of Quezon Seal"
+            style="display:block;margin:0 auto 16px;width:72px;height:72px;"
+          />
+          <h1 style="margin:0;font-size:24px;font-weight:700;">Your instant sign-in link</h1>
+          <p style="margin:12px 0 0;font-size:16px;line-height:1.5;">
+            Use this secure link to open the Municipality of Quezon Admin Dashboard.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:32px 40px;">
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+            Email: <strong style="color:#2563eb;">{{ .Email }}</strong>
+          </p>
+          <p style="margin:0 0 32px;font-size:15px;line-height:1.6;">
+            This link expires soon. Open it on the same device where you requested access, if possible.
+          </p>
+          <p style="text-align:center;margin:0 0 32px;">
+            <a href="{{ .SiteURL }}/auth/v1/verify?token_hash={{ .TokenHash }}&type=magiclink&redirect_to={{ .RedirectTo }}"
+               style="display:inline-block;padding:14px 28px;border-radius:999px;background-color:#2563eb;color:#ffffff;font-weight:600;font-size:16px;text-decoration:none;">
+              Open dashboard
+            </a>
+          </p>
+          <p style="margin:0;font-size:13px;line-height:1.6;color:#2563eb;word-break:break-all;">
+            {{ .SiteURL }}/auth/v1/verify?token_hash={{ .TokenHash }}&type=magiclink&redirect_to={{ .RedirectTo }}
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:24px 40px;background-color:#f6f9ff;font-size:12px;line-height:1.6;color:#6b7280;">
+          <p style="margin:0 0 8px;font-weight:600;color:#1f2937;">Didn't request this?</p>
+          <p style="margin:0;">
+            Delete this email or forward it to <a href="mailto:it@quezonbukidnon.com" style="color:#2563eb;text-decoration:none;">it@quezonbukidnon.com</a>.
+          </p>
+          <p style="margin:12px 0 0;">&copy; Municipality of Quezon, Bukidnon</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
