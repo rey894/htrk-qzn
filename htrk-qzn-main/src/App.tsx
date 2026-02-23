@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import Maintenance from "./pages/Maintenance";
 import { MaintenanceGuard } from "@/components/MaintenanceGuard";
 import { LoadingScreen, INTRO_SEEN_KEY } from "@/components/LoadingScreen";
@@ -10,37 +10,39 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Governance from "./pages/Governance";
-import Mayor from "./pages/governance/Mayor";
-import SangguniangBayan from "./pages/governance/SangguniangBayan";
-import Offices from "./pages/governance/Offices";
-import News from "./pages/News";
-import DevelopmentAgenda from "./pages/governance/DevelopmentAgenda";
-import Services from "./pages/Services";
-import Investment from "./pages/Investment";
-import Tourism from "./pages/Tourism";
-import CivicActivities from "./pages/tourism/CivicActivities";
-import WhatToDo from "./pages/tourism/WhatToDo";
-import DestinationDetail from "./pages/tourism/DestinationDetail";
-import Transparency from "./pages/Transparency";
-import FullDisclosure from "./pages/transparency/FullDisclosure";
-import NotFound from "./pages/NotFound";
-import Accessibility from "./pages/Accessibility";
-import Sitemap from "./pages/Sitemap";
-import LGSF from "./pages/transparency/LGSF";
-import BayanihanGrant from "./pages/transparency/BayanihanGrant";
-import InvitationToBid from "./pages/transparency/InvitationToBid";
-import NoticeOfAward from "./pages/transparency/NoticeOfAward";
-import NoticeToProceed from "./pages/transparency/NoticeToProceed";
-import ContractAgreement from "./pages/transparency/ContractAgreement";
-import SagipSaka from "./pages/transparency/SagipSaka";
+
+// Route-level code splitting to keep the initial bundle small.
+const Index = lazy(() => import("./pages/Index"));
+const About = lazy(() => import("./pages/About"));
+const Governance = lazy(() => import("./pages/Governance"));
+const Mayor = lazy(() => import("./pages/governance/Mayor"));
+const SangguniangBayan = lazy(() => import("./pages/governance/SangguniangBayan"));
+const Offices = lazy(() => import("./pages/governance/Offices"));
+const News = lazy(() => import("./pages/News"));
+const DevelopmentAgenda = lazy(() => import("./pages/governance/DevelopmentAgenda"));
+const Services = lazy(() => import("./pages/Services"));
+const Investment = lazy(() => import("./pages/Investment"));
+const Tourism = lazy(() => import("./pages/Tourism"));
+const CivicActivities = lazy(() => import("./pages/tourism/CivicActivities"));
+const WhatToDo = lazy(() => import("./pages/tourism/WhatToDo"));
+const DestinationDetail = lazy(() => import("./pages/tourism/DestinationDetail"));
+const Transparency = lazy(() => import("./pages/Transparency"));
+const FullDisclosure = lazy(() => import("./pages/transparency/FullDisclosure"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Accessibility = lazy(() => import("./pages/Accessibility"));
+const Sitemap = lazy(() => import("./pages/Sitemap"));
+const LGSF = lazy(() => import("./pages/transparency/LGSF"));
+const BayanihanGrant = lazy(() => import("./pages/transparency/BayanihanGrant"));
+const InvitationToBid = lazy(() => import("./pages/transparency/InvitationToBid"));
+const NoticeOfAward = lazy(() => import("./pages/transparency/NoticeOfAward"));
+const NoticeToProceed = lazy(() => import("./pages/transparency/NoticeToProceed"));
+const ContractAgreement = lazy(() => import("./pages/transparency/ContractAgreement"));
+const SagipSaka = lazy(() => import("./pages/transparency/SagipSaka"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-import TravelGuide from "./pages/TravelGuide";
-import FestivalCalendar from "./pages/FestivalCalendar";
-import DataPrivacy from "./pages/DataPrivacy";
+const TravelGuide = lazy(() => import("./pages/TravelGuide"));
+const FestivalCalendar = lazy(() => import("./pages/FestivalCalendar"));
+const DataPrivacy = lazy(() => import("./pages/DataPrivacy"));
 
 function PageLoader() {
   return (
@@ -58,6 +60,8 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const routerBasename = (import.meta.env.BASE_URL || "/").replace(/\/$/, "") || "/";
 
 function AppContent() {
   const location = useLocation();
@@ -79,43 +83,45 @@ function AppContent() {
       )}
       <MaintenanceGuard>
         <FloatingEmergencyHotlines />
-        <Routes>
-          <Route path="/maintenance" element={<Maintenance />} />
-          <Route path="/" element={<AnimatedLayout />}>
-            <Route index element={<Index />} />
-            <Route path="about" element={<About />} />
-            <Route path="governance" element={<Governance />} />
-            <Route path="governance/mayor" element={<Mayor />} />
-            <Route path="governance/sangguniang-bayan" element={<SangguniangBayan />} />
-            <Route path="governance/offices" element={<Offices />} />
-            <Route path="governance/department-heads" element={<Offices />} />
-            <Route path="news" element={<News />} />
-            <Route path="governance/development-agenda" element={<DevelopmentAgenda />} />
-            <Route path="services" element={<Services />} />
-            <Route path="investment" element={<Investment />} />
-            <Route path="tourism" element={<Tourism />} />
-            <Route path="tourism/civic-activities" element={<CivicActivities />} />
-            <Route path="tourism/festivals" element={<FestivalCalendar />} />
-            <Route path="tourism/what-to-do" element={<WhatToDo />} />
-            <Route path="tourism/destination/:id" element={<DestinationDetail />} />
-            <Route path="travel-guide" element={<TravelGuide />} />
-            <Route path="transparency" element={<Transparency />} />
-            <Route path="transparency/full-disclosure" element={<FullDisclosure />} />
-            <Route path="transparency/lgsf" element={<LGSF />} />
-            <Route path="transparency/bayanihan-grant" element={<BayanihanGrant />} />
-            <Route path="transparency/invitation-to-bid" element={<InvitationToBid />} />
-            <Route path="transparency/notice-of-award" element={<NoticeOfAward />} />
-            <Route path="transparency/notice-to-proceed" element={<NoticeToProceed />} />
-            <Route path="transparency/contract-agreement" element={<ContractAgreement />} />
-            <Route path="transparency/sagip-saka" element={<SagipSaka />} />
-            <Route path="accessibility" element={<Accessibility />} />
-            <Route path="sitemap" element={<Sitemap />} />
-            <Route path="data-privacy" element={<DataPrivacy />} />
-            <Route path="auth" element={<Suspense fallback={<PageLoader />}><Auth /></Suspense>} />
-            <Route path="admin" element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-                </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/" element={<AnimatedLayout />}>
+              <Route index element={<Index />} />
+              <Route path="about" element={<About />} />
+              <Route path="governance" element={<Governance />} />
+              <Route path="governance/mayor" element={<Mayor />} />
+              <Route path="governance/sangguniang-bayan" element={<SangguniangBayan />} />
+              <Route path="governance/offices" element={<Offices />} />
+              <Route path="governance/department-heads" element={<Offices />} />
+              <Route path="news" element={<News />} />
+              <Route path="governance/development-agenda" element={<DevelopmentAgenda />} />
+              <Route path="services" element={<Services />} />
+              <Route path="investment" element={<Investment />} />
+              <Route path="tourism" element={<Tourism />} />
+              <Route path="tourism/civic-activities" element={<CivicActivities />} />
+              <Route path="tourism/festivals" element={<FestivalCalendar />} />
+              <Route path="tourism/what-to-do" element={<WhatToDo />} />
+              <Route path="tourism/destination/:id" element={<DestinationDetail />} />
+              <Route path="travel-guide" element={<TravelGuide />} />
+              <Route path="transparency" element={<Transparency />} />
+              <Route path="transparency/full-disclosure" element={<FullDisclosure />} />
+              <Route path="transparency/lgsf" element={<LGSF />} />
+              <Route path="transparency/bayanihan-grant" element={<BayanihanGrant />} />
+              <Route path="transparency/invitation-to-bid" element={<InvitationToBid />} />
+              <Route path="transparency/notice-of-award" element={<NoticeOfAward />} />
+              <Route path="transparency/notice-to-proceed" element={<NoticeToProceed />} />
+              <Route path="transparency/contract-agreement" element={<ContractAgreement />} />
+              <Route path="transparency/sagip-saka" element={<SagipSaka />} />
+              <Route path="accessibility" element={<Accessibility />} />
+              <Route path="sitemap" element={<Sitemap />} />
+              <Route path="data-privacy" element={<DataPrivacy />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="admin" element={<AdminDashboard />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </MaintenanceGuard>
     </>
   );
@@ -129,7 +135,7 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <BrowserRouter basename={routerBasename}>
               <AppContent />
             </BrowserRouter>
           </TooltipProvider>

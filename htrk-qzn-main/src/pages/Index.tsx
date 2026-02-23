@@ -1,12 +1,66 @@
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
-import { Gallery } from "@/components/Gallery";
-import { UpdatesSection } from "@/components/UpdatesSection";
-import { ContactSection } from "@/components/ContactSection";
-import { Footer } from "@/components/Footer";
 import { AnimateIn } from "@/components/AnimateIn";
 import { SEOHelmet } from "@/components/seo/SEOHelmet";
 import { OrganizationSchema } from "@/components/seo/StructuredData";
+
+const Gallery = lazy(async () => ({ default: (await import("@/components/Gallery")).Gallery }));
+const UpdatesSection = lazy(async () => ({ default: (await import("@/components/UpdatesSection")).UpdatesSection }));
+const ContactSection = lazy(async () => ({ default: (await import("@/components/ContactSection")).ContactSection }));
+const Footer = lazy(async () => ({ default: (await import("@/components/Footer")).Footer }));
+
+function SectionPlaceholder({ minHeight = 320 }: { minHeight?: number }) {
+  return (
+    <div
+      className="w-full rounded-2xl bg-gradient-to-b from-muted/35 to-muted/10 border border-border/30 animate-pulse"
+      style={{ minHeight }}
+      aria-hidden="true"
+    />
+  );
+}
+
+function DeferredSection({
+  children,
+  minHeight = 320,
+  rootMargin = "300px 0px",
+}: {
+  children: ReactNode;
+  minHeight?: number;
+  rootMargin?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (visible) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry?.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin }
+    );
+
+    const node = ref.current;
+    if (node) observer.observe(node);
+    return () => observer.disconnect();
+  }, [rootMargin, visible]);
+
+  return (
+    <div ref={ref}>
+      {visible ? children : <SectionPlaceholder minHeight={minHeight} />}
+    </div>
+  );
+}
 
 const Index = () => {
   return (
@@ -41,16 +95,32 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <HeroSection />
-        <AnimateIn>
-          <Gallery />
-        </AnimateIn>
-        <AnimateIn delay={100}>
-          <UpdatesSection />
-        </AnimateIn>
-        <AnimateIn delay={150}>
-          <ContactSection />
-        </AnimateIn>
-        <Footer />
+        <DeferredSection minHeight={520}>
+          <AnimateIn>
+            <Suspense fallback={<SectionPlaceholder minHeight={520} />}>
+              <Gallery />
+            </Suspense>
+          </AnimateIn>
+        </DeferredSection>
+        <DeferredSection minHeight={560} rootMargin="400px 0px">
+          <AnimateIn delay={100}>
+            <Suspense fallback={<SectionPlaceholder minHeight={560} />}>
+              <UpdatesSection />
+            </Suspense>
+          </AnimateIn>
+        </DeferredSection>
+        <DeferredSection minHeight={520} rootMargin="450px 0px">
+          <AnimateIn delay={150}>
+            <Suspense fallback={<SectionPlaceholder minHeight={520} />}>
+              <ContactSection />
+            </Suspense>
+          </AnimateIn>
+        </DeferredSection>
+        <DeferredSection minHeight={220} rootMargin="500px 0px">
+          <Suspense fallback={<SectionPlaceholder minHeight={220} />}>
+            <Footer />
+          </Suspense>
+        </DeferredSection>
       </div>
     </>
   );

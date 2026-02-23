@@ -163,6 +163,8 @@ export function UpdatesSection() {
                             src={item.featured_image_url}
                             alt={item.title}
                             className="w-full h-48 md:h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none"
+                            loading="lazy"
+                            decoding="async"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = '/placeholder.svg';
                             }}
@@ -238,6 +240,8 @@ export function UpdatesSection() {
                             src={story.thumbnail} 
                             alt={story.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                            decoding="async"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = '/placeholder.svg';
                             }}

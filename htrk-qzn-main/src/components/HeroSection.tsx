@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { VideoPopup } from "@/components/VideoPopup";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { 
   TrendingUp, 
   Shield,
@@ -11,7 +10,6 @@ import {
   Play
 } from "lucide-react";
 
-import { InteractiveMap } from "@/components/InteractiveMap";
 import { QuezonAtAGlance } from "@/components/QuezonAtAGlance";
 import { ScrollDownIndicator } from "@/components/ScrollDownIndicator";
 import banner4K from "@/assets/banner-4k.png";
@@ -38,6 +36,9 @@ import manoboFestivalDance from "@/assets/quezon-manobo-cultural-festival-dance.
 import manoboElder from "@/assets/quezon-indigenous-manobo-elder-traditional-costume.jpg";
 import manoboRitual from "@/assets/quezon-manobo-rice-pounding-ritual.jpg";
 import heroVideo from "@/assets/10s website.mp4";
+
+const VideoPopup = lazy(async () => ({ default: (await import("@/components/VideoPopup")).VideoPopup }));
+const InteractiveMap = lazy(async () => ({ default: (await import("@/components/InteractiveMap")).InteractiveMap }));
 
 interface HeroSlide {
   image?: string;
@@ -168,6 +169,8 @@ function EmergencyHotlinesCarousel() {
                   src={hotline.logo}
                   alt={`${hotline.name} Logo`}
                   className="w-full h-full object-contain"
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     filter: 'brightness(1.1) contrast(1.1)'
                   }}
@@ -199,49 +202,103 @@ function EmergencyHotlinesCarousel() {
 
 // Component for Video/Image Looping Background (like "WE ARE QUEZON")
 function VideoImageLoopSlide({ slide, index }: { slide: HeroSlide, index: number }) {
-  const [showVideo, setShowVideo] = useState(true);
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoEnabled, setVideoEnabled] = useState(false);
   const videoSrc = slide.videoSrc;
   const videoId = slide.videoId || '';
   const videoStartTime = slide.videoStartTime || 0;
   const image = slide.image || '';
 
   useEffect(() => {
-    // Loop between video and image every 15 seconds
-    const interval = setInterval(() => {
-      setShowVideo(prev => !prev);
-    }, 15000); // 15 seconds for video, then 15 seconds for image
+    if (typeof window === "undefined") {
+      setVideoEnabled(true);
+      return;
+    }
 
-    return () => clearInterval(interval);
+    const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const navigatorWithConnection = navigator as Navigator & {
+      connection?: { saveData?: boolean };
+    };
+    const saveData = Boolean(navigatorWithConnection.connection?.saveData);
+    const reducedMotion = Boolean(mediaQuery?.matches);
+
+    if (saveData || reducedMotion) {
+      setVideoEnabled(false);
+      setShowVideo(false);
+      return;
+    }
+
+    let cancelled = false;
+    let timeoutId: number | undefined;
+    let idleId: number | undefined;
+
+    const enableVideo = () => {
+      if (cancelled) return;
+      setVideoEnabled(true);
+      setShowVideo(true);
+    };
+
+    if ("requestIdleCallback" in window) {
+      idleId = (window as Window & {
+        requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number;
+      }).requestIdleCallback(enableVideo, { timeout: 2000 });
+    } else {
+      timeoutId = window.setTimeout(enableVideo, 1200);
+    }
+
+    return () => {
+      cancelled = true;
+      if (typeof timeoutId === "number") window.clearTimeout(timeoutId);
+      if (typeof idleId === "number" && "cancelIdleCallback" in window) {
+        (window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+      }
+    };
   }, []);
+
+  useEffect(() => {
+    if (!videoEnabled) return;
+
+    // Loop between video and image every 15 seconds, but only after video is enabled.
+    const interval = window.setInterval(() => {
+      setShowVideo((prev) => !prev);
+    }, 15000);
+
+    return () => window.clearInterval(interval);
+  }, [videoEnabled]);
 
   return (
     <>
       {/* Video Background */}
-      <div 
+      <div
         className={`absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-1000 ${
-          showVideo ? 'opacity-100 z-10' : 'opacity-0 z-0'
+          videoEnabled && showVideo ? 'opacity-100 z-10' : 'opacity-0 z-0'
         }`}
       >
-        {videoSrc ? (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 object-cover"
-            title="We Are Quezon Video Background"
-          >
-            <source src={videoSrc} type="video/mp4" />
-          </video>
-        ) : (
-          <iframe
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[200%] min-h-[200%] w-[200%] h-[200%]"
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&start=${videoStartTime}&modestbranding=1&iv_load_policy=3`}
-            allow="autoplay; encrypted-media; accelerometer; gyroscope; picture-in-picture"
-            allowFullScreen={false}
-            style={{ pointerEvents: 'none', border: 'none' }}
-            title="We Are Quezon Video Background"
-          />
+        {videoEnabled && (
+          videoSrc ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={image || undefined}
+              className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 object-cover"
+              title="We Are Quezon Video Background"
+              aria-hidden="true"
+            >
+              <source src={videoSrc} type="video/mp4" />
+            </video>
+          ) : (
+            <iframe
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[200%] min-h-[200%] w-[200%] h-[200%]"
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&start=${videoStartTime}&modestbranding=1&iv_load_policy=3`}
+              allow="autoplay; encrypted-media; accelerometer; gyroscope; picture-in-picture"
+              allowFullScreen={false}
+              style={{ pointerEvents: 'none', border: 'none' }}
+              title="We Are Quezon Video Background"
+            />
+          )
         )}
         {/* Darker seal color overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(95_38%_42%)]/60 via-[hsl(95_35%_45%)]/55 to-[hsl(95_38%_42%)]/60" />
@@ -252,7 +309,7 @@ function VideoImageLoopSlide({ slide, index }: { slide: HeroSlide, index: number
       {image && (
         <div 
           className={`absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-1000 ${
-            !showVideo ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            !videoEnabled || !showVideo ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
           <img 
@@ -260,6 +317,8 @@ function VideoImageLoopSlide({ slide, index }: { slide: HeroSlide, index: number
             alt={slide.alt || slide.title}
             className="absolute inset-0 w-full h-full object-cover object-center opacity-90"
             loading={index === 0 ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={index === 0 ? "high" : "auto"}
           />
           {/* Darker seal color overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-[hsl(95_38%_42%)]/60 via-[hsl(95_35%_45%)]/55 to-[hsl(95_38%_42%)]/60" />
@@ -309,6 +368,7 @@ function EmergencyHeroSlide({ images, slide, index }: { images: string[], slide:
               alt={`${slide.alt || slide.title} - Image ${imgIndex + 1}`}
               className="absolute inset-0 w-full h-full object-cover object-center opacity-80"
               loading={index === 0 && imgIndex === 0 ? "eager" : "lazy"}
+              decoding="async"
             />
           </div>
         ))}
@@ -331,6 +391,30 @@ function EmergencyHeroSlide({ images, slide, index }: { images: string[], slide:
 export function HeroSection() {
   const navigate = useNavigate();
   const [videoPopupOpen, setVideoPopupOpen] = useState(false);
+  const [mapVisible, setMapVisible] = useState(false);
+  const mapSectionRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (mapVisible) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setMapVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setMapVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "250px 0px" }
+    );
+
+    const node = mapSectionRef.current;
+    if (node) observer.observe(node);
+    return () => observer.disconnect();
+  }, [mapVisible]);
 
   const handleNavigate = (link: string) => {
     if (link.startsWith('/#')) {
@@ -369,6 +453,7 @@ export function HeroSection() {
                 className="absolute inset-0 w-full h-full object-cover object-center opacity-80"
                 loading="eager"
                 fetchPriority="high"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-br from-[hsl(35_45%_18%)]/85 via-[hsl(35_40%_22%)]/80 to-[hsl(95_35%_25%)]/85" />
               <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
@@ -430,12 +515,16 @@ export function HeroSection() {
             </div>
           </div>
         </div>
-        <VideoPopup
-          open={videoPopupOpen}
-          onOpenChange={setVideoPopupOpen}
-          src="/assets/we-are-quezon.mp4"
-          title="We Are Quezon"
-        />
+        {videoPopupOpen && (
+          <Suspense fallback={null}>
+            <VideoPopup
+              open={videoPopupOpen}
+              onOpenChange={setVideoPopupOpen}
+              src="/assets/we-are-quezon.mp4"
+              title="We Are Quezon"
+            />
+          </Suspense>
+        )}
       </section>
 
       {/* Section 2: Quezon At A Glance */}
@@ -443,11 +532,27 @@ export function HeroSection() {
         <QuezonAtAGlance />
 
         {/* Discover Quezon - Interactive Map */}
-        <div className="container mx-auto px-4 sm:px-6 mt-12 pb-16">
+        <div className="container mx-auto px-4 sm:px-6 mt-12 pb-16" ref={mapSectionRef}>
           <div className="mb-6 text-center">
             <h3 className="text-2xl font-bold text-primary mb-4">Discover Quezon</h3>
           </div>
-          <InteractiveMap embedded={true} />
+          {mapVisible ? (
+            <Suspense
+              fallback={
+                <div
+                  className="w-full min-h-[420px] rounded-xl border border-primary/10 bg-muted/20 animate-pulse"
+                  aria-hidden="true"
+                />
+              }
+            >
+              <InteractiveMap embedded={true} />
+            </Suspense>
+          ) : (
+            <div
+              className="w-full min-h-[420px] rounded-xl border border-primary/10 bg-muted/20 animate-pulse"
+              aria-hidden="true"
+            />
+          )}
         </div>
       </section>
 

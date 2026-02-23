@@ -46,6 +46,16 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
       // ignore
     }
 
+    if (typeof window !== "undefined") {
+      const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+      const navigatorWithConnection = navigator as Navigator & { connection?: { saveData?: boolean } };
+      const saveData = Boolean(navigatorWithConnection.connection?.saveData);
+      if (reducedMotion || saveData) {
+        complete();
+        return;
+      }
+    }
+
     const video = videoRef.current;
     const canPlay = () => {
       video?.play().catch(() => setVideoError(false));
