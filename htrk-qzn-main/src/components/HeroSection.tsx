@@ -217,12 +217,16 @@ function VideoImageLoopSlide({ slide, index }: { slide: HeroSlide, index: number
 
     const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     const navigatorWithConnection = navigator as Navigator & {
-      connection?: { saveData?: boolean };
+      connection?: { saveData?: boolean; effectiveType?: string };
     };
     const saveData = Boolean(navigatorWithConnection.connection?.saveData);
+    const effectiveType = navigatorWithConnection.connection?.effectiveType || "";
+    const slowConnection = ["slow-2g", "2g", "3g"].includes(effectiveType);
     const reducedMotion = Boolean(mediaQuery?.matches);
+    const mobileViewport = window.matchMedia?.("(max-width: 767px)")?.matches ?? window.innerWidth < 768;
 
-    if (saveData || reducedMotion) {
+    // Mobile and slower networks get the image-only hero to cut bandwidth and reduce jank.
+    if (saveData || reducedMotion || slowConnection || mobileViewport) {
       setVideoEnabled(false);
       setShowVideo(false);
       return;

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import DOMPurify from 'dompurify';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,9 @@ export function RichTextEditor({
   const [previewMode, setPreviewMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const quillRef = useRef<ReactQuill>(null);
+  const previewHtml = DOMPurify.sanitize(
+    value || '<p class="text-muted-foreground">No content to preview</p>'
+  );
 
   const modules = {
     toolbar: {
@@ -202,7 +206,7 @@ export function RichTextEditor({
             <CardContent>
               <div 
                 className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: value || '<p class="text-muted-foreground">No content to preview</p>' }}
+                dangerouslySetInnerHTML={{ __html: previewHtml }}
               />
             </CardContent>
           </Card>

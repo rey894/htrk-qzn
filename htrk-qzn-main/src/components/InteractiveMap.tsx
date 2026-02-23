@@ -14,44 +14,62 @@ const googleMapsEmbedUrl = `https://www.google.com/maps?q=${QUEZON_CENTER}&z=${Q
 const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=Quezon,+Bukidnon,+Philippines";
 
 export const InteractiveMap = ({ embedded = false, interactive = true }: InteractiveMapProps) => {
-  const mapContent = (
+  const mapContent = interactive ? (
     <div className="w-full relative">
       <Card className="relative overflow-hidden shadow-lg border border-primary/10 bg-white">
         {/* Info Card - Top Left */}
         <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-4 max-w-xs border border-primary/10">
           <CardTitle className="text-lg font-bold text-foreground mb-1">Quezon, Bukidnon</CardTitle>
           <CardDescription className="text-sm text-muted-foreground">
-            {interactive
-              ? "Interactive map of the municipality — pan, zoom, and explore"
-              : "Administrative map showing 31 barangays and neighboring municipalities"}
+            Interactive map of the municipality — pan, zoom, and explore
           </CardDescription>
         </div>
 
-        {/* Map: Interactive embed (homepage) or static image (About) */}
         <div className="relative w-full min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
-          {interactive ? (
-            <iframe
-              src={googleMapsEmbedUrl}
-              title="Interactive map of Quezon, Bukidnon municipality"
-              className="w-full h-full min-h-[400px] sm:min-h-[500px] md:min-h-[600px] border-0"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          ) : (
-            <img
-              src="/assets/quezon-administrative-map.png"
-              alt="Quezon, Bukidnon administrative map showing barangays and boundaries with Valencia, San Fernando, Kitaotao, and Don Carlos"
-              className="w-full h-auto object-contain bg-white"
-              loading="lazy"
-            />
-          )}
-          {/* Overlay link to Google Maps for directions */}
+          <iframe
+            src={googleMapsEmbedUrl}
+            title="Interactive map of Quezon, Bukidnon municipality"
+            className="w-full h-full min-h-[400px] sm:min-h-[500px] md:min-h-[600px] border-0"
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
           <a
             href={googleMapsUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="absolute bottom-4 right-4 z-20 inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shadow-lg"
+          >
+            View on Google Maps
+          </a>
+        </div>
+      </Card>
+    </div>
+  ) : (
+    <div className="w-full relative">
+      <Card className="overflow-hidden shadow-lg border border-primary/10 bg-white">
+        <div className="p-4 sm:p-5 border-b border-primary/10">
+          <CardTitle className="text-lg font-bold text-foreground mb-1">Quezon, Bukidnon</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            Administrative map showing 31 barangays and neighboring municipalities
+          </CardDescription>
+        </div>
+
+        <div className="bg-white">
+          <img
+            src="/assets/quezon-administrative-map.png"
+            alt="Quezon, Bukidnon administrative map showing barangays and boundaries with Valencia, San Fernando, Kitaotao, and Don Carlos"
+            className="w-full h-auto object-contain bg-white"
+            loading="lazy"
+          />
+        </div>
+
+        <div className="p-4 flex justify-end">
+          <a
+            href={googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full sm:w-auto justify-center items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shadow-lg"
           >
             View on Google Maps
           </a>

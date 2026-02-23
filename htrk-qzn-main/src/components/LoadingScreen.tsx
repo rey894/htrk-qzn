@@ -12,8 +12,12 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   const [opacity, setOpacity] = useState(1);
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const completedRef = useRef(false);
+  const videoStartedRef = useRef(false);
 
   const complete = useCallback(() => {
+    if (completedRef.current) return;
+    completedRef.current = true;
     setPhase("done");
     try {
       sessionStorage.setItem(INTRO_SEEN_KEY, "1");
@@ -57,17 +61,69 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
     }
 
     const video = videoRef.current;
-    const canPlay = () => {
-      video?.play().catch(() => setVideoError(false));
+    const attemptPlay = () => {
+      if (!video) return;
+
+      // Safari on iOS is stricter about autoplay flags being set on the element itself.
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "true");
+
+      const playPromise = video.play();
+      if (typeof playPromise?.catch === "function") {
+        playPromise.catch(() => {
+          // Keep the loading UI visible and retry on subsequent readiness events.
+        });
+      }
     };
     if (video) {
-      video.addEventListener("canplay", canPlay, { once: true });
+      // Force a fresh load so first-visit iOS Safari fetches enough data to start playback.
+      video.load();
+      video.addEventListener("loadedmetadata", attemptPlay);
+      video.addEventListener("loadeddata", attemptPlay);
+      video.addEventListener("canplay", attemptPlay);
+      attemptPlay();
     }
 
     return () => {
-      video?.removeEventListener("canplay", canPlay);
+      video?.removeEventListener("loadedmetadata", attemptPlay);
+      video?.removeEventListener("loadeddata", attemptPlay);
+      video?.removeEventListener("canplay", attemptPlay);
     };
   }, [complete]);
+
+  // Watchdog: avoid getting stuck if autoplay is blocked or Safari never starts playback.
+  useEffect(() => {
+    if (phase !== "playing") return;
+
+    const retry = window.setTimeout(() => {
+      const video = videoRef.current;
+      if (!video || videoStartedRef.current) return;
+      const playPromise = video.play();
+      if (typeof playPromise?.catch === "function") {
+        playPromise.catch(() => {
+          // Show a lightweight fallback and continue instead of trapping the user on a blank screen.
+          setVideoError(true);
+          window.setTimeout(() => complete(), 1200);
+        });
+      }
+    }, 2500);
+
+    const hardTimeout = window.setTimeout(() => {
+      if (!videoStartedRef.current) {
+        setVideoError(true);
+        complete();
+      }
+    }, 8000);
+
+    return () => {
+      window.clearTimeout(retry);
+      window.clearTimeout(hardTimeout);
+    };
+  }, [phase, complete]);
 
   // Phase timing: video plays -> onEnded -> linger -> fadeout -> complete
   useEffect(() => {
@@ -115,9 +171,19 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
         src={LOGO_INTRO_SRC}
         className="absolute inset-0 w-full h-full object-contain bg-white"
         style={{ objectFit: "contain" }}
+        preload="auto"
         playsInline
         muted
+        defaultMuted
         autoPlay
+        onPlay={() => {
+          videoStartedRef.current = true;
+          setVideoError(false);
+        }}
+        onPlaying={() => {
+          videoStartedRef.current = true;
+          setVideoError(false);
+        }}
         onEnded={handleVideoEnded}
         onError={handleVideoError}
       />
